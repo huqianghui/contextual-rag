@@ -17,3 +17,9 @@ class MergedChunk(BaseModel):
 class MergedChunkFile(BaseModel):
     filePath: str
     totalTokens: int
+
+class ChunkFinalResult(BaseModel):
+    title: str
+    chunk: str
+    context: str
+    fileName: str

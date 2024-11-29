@@ -5,7 +5,9 @@ import shutil
 import tiktoken
 from dotenv import load_dotenv
 from langchain.text_splitter import MarkdownHeaderTextSplitter
+from tenacity import retry, stop_after_attempt, wait_random_exponential
 
+from cache.cacheConfig import async_diskcache, cache
 from dataClass.dataMode import MergedChunk, MergedChunkFile, SplitResult
 from docProces.senamicChunk import process_big_chunk_file, process_small_chunk_file
 
@@ -20,7 +22,8 @@ headers_to_split_on = [
 
 text_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
 
-
+@async_diskcache("split_content_by_markdown_header")
+@retry(wait=wait_random_exponential(multiplier=1, max=60), stop=stop_after_attempt(3))
 async def splitContentByMarkdownHeader(docMarkdownStr:str)->list[SplitResult]:
     splits = text_splitter.split_text(docMarkdownStr)
     encoding = tiktoken.get_encoding(os.getenv("LLM_CODER","o200k_base"))

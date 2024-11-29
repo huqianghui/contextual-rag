@@ -15,6 +15,9 @@ from azure.ai.formrecognizer import AnalyzeResult as FormRecognizerAnalyzeResult
 from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.core.credentials import AzureKeyCredential
 from dotenv import load_dotenv
+from tenacity import retry, stop_after_attempt, wait_random_exponential
+
+from cache.cacheConfig import async_diskcache, cache
 
 load_dotenv()
 
@@ -43,6 +46,8 @@ async def convert_pdf_to_base64(pdf_path: str):
         base64_encoded_pdf = base64.b64encode(file.read()).decode()
     return base64_encoded_pdf
 
+@async_diskcache("document_markdown_cache")
+@retry(wait=wait_random_exponential(multiplier=1, max=60), stop=stop_after_attempt(3))
 async def get_document_analysis(pdf_path: str):
     analyze_request = AnalyzeDocumentRequest(bytes_source= await convert_pdf_to_base64(pdf_path))
     poller = await asycDocumentIntelligenceClient.begin_analyze_document(

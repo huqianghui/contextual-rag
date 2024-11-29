@@ -13,3 +13,4 @@ langchain==0.3.8
 tiktoken==0.8.0
 pydantic==2.8.2
 aiofiles==24.1.0
+azure-search-documents==11.6.0b4

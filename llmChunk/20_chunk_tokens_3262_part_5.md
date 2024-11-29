@@ -1,0 +1,3 @@
+*Histology is not ideal for clinical use in patient care, as it describes an unspecified or outdated diagnosis. Data collectors may use this code only if there is not enough information in the medical record to document a more specific diagnosis.  
+El-Naggar AK, Chan JKC, Grandis JR, Takata T, Slootweg PJ, eds. World Health Organization Classification of Head and Neck Tumours. Lyon: IARC; 2017. Used with permission.  
+International Agency for Research on Cancer, World Health Organization. International Classification of Diseases for Oncology. ICD-O-3-Online. http://codes.iarc.fr/home. Accessed August 16, 2017. Used with permission.

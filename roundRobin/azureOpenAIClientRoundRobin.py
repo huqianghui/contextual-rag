@@ -25,8 +25,7 @@ api_key6= os.getenv("AZURE_OPENAI_API_KEY6")
 api_base7 = os.getenv("AZURE_OPENAI_ENDPOINT7")
 api_key7= os.getenv("AZURE_OPENAI_API_KEY7")
 
-api_version = os.getenv("AZURE_OPENAI_API_VERSION","2024-10-21")
-deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME","gpt-4o")
+api_version = os.getenv("AZURE_OPENAI_API_VERSION","2024-10-01-preview")
 
 aAzureOpenclient1 =  AsyncAzureOpenAI(
         azure_endpoint=api_base1,

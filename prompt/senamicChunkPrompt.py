@@ -9,3 +9,29 @@ You are an expert in content chunking. Please help me chunk user's input text ac
                     7. The final output is a markdown string array [ "chunked1markdown" , "chunked2markdown",....]
 '''
 
+DOCUMENT_CONTEXT_PROMPT = """
+<document>
+{doc_content}
+</document>
+"""
+
+
+CHUNK_CONTEXT_PROMPT = """
+Here is the chunk we want to situate within the whole document
+<chunk>
+{chunk_content}
+</chunk>
+
+Please give a short succinct context to situate this chunk less then 150 words.  within the overall document for the purposes of improving search retrieval of the chunk.
+Answer only with the succinct context and nothing else.
+"""
+
+CHUNK_TITLE_PROMPT = """
+Here is the chunk we want to entitle within the whole document
+<chunk>
+{chunk_content}
+</chunk>
+
+Please give a short entitle to descript and summary this chunk less then 50 words. within the overall document for the purposes of improving search retrieval of the chunk.
+Answer only with the title and nothing else.
+"""

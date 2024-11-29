@@ -1,9 +1,9 @@
-from diskcache import Cache
-import os
 import functools
 import hashlib
 import logging
+import os
 
+from diskcache import Cache
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 cache = Cache(os.getenv("CACHE_DIR_PATH","cache") + "/azureOpenAICache")
@@ -13,7 +13,13 @@ def async_diskcache(cacheName):
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
             # Create a unique cache key
-            cache_key = _key_function(cacheName,*args)
+            cache_key = cacheName + "__" + _key_function(cacheName,*args,**kwargs)
+            
+            # If the function is called without arguments, do not cache the result
+            if(len(args) == 0 and len(kwargs) == 0):
+                cache_key = cacheName
+                return await func(*args, **kwargs)
+
             if cache_key in cache:
                 logging.info(f"Cache hit for {cacheName} with key {cache_key}")
                 return cache[cache_key]
@@ -33,7 +39,15 @@ def async_diskcache(cacheName):
         return wrapper
     return decorator
 
-def _key_function(cacheName:str,useCode:str,answer:str,index:int):
-    combined_str = cacheName +  useCode + answer
+def _key_function(cacheName:str,*args,**kwargs):
+    args_str = ''.join(str(arg) for arg in args)
+    kwargs_str = ''.join(f'{k}{str(v)}' for k, v in sorted(kwargs.items()))
+    combined_str = cacheName + args_str + kwargs_str
     hash_object = hashlib.sha256(combined_str.encode())
     return hash_object.hexdigest()
+
+def clear_cache_by_cache_name(cacheName:str):
+    keys_to_delete = [key for key in cache.iterkeys() if key.startswith(cacheName)]
+    for key in keys_to_delete:
+        del cache[key]
+

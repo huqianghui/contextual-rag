@@ -1,0 +1,1 @@
+Imaging staging of a known oropharyngeal or hypopharyngeal tumor requires a systematic review of the primary tumor, nodal drainage sites, and imaged potential sites of spread. For this purpose, structured reporting may offer advantages to the radiologist for ensuring that critical information is not omitted.
