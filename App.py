@@ -42,10 +42,23 @@ async def contextual_process_file(markdownContent,mergedChunkFile):
         titelContent = await entitle_chunk(markdownContent, mergedChunkFileContent, fileName)
         chunk_result = ChunkFinalResult(title=titelContent, chunk=mergedChunkFileContent, context=situateContent, fileName=fileName)
 
-        output_file = f"{fileName}_finalchunk.json"
-        async with aiofiles.open(FINAL_CHUNK_FILE_PATH + output_file, 'w',encoding="utf-8") as json_file:
+        FINAL_CHUNK_FILE_PATH_JSON = FINAL_CHUNK_FILE_PATH + "/json/"
+        if not os.path.exists(FINAL_CHUNK_FILE_PATH_JSON):
+            os.makedirs(FINAL_CHUNK_FILE_PATH_JSON)
+        
+        json_output_file = f"{fileName}_finalchunk.json"
+        async with aiofiles.open(FINAL_CHUNK_FILE_PATH_JSON + json_output_file, 'w',encoding="utf-8") as json_file:
             await json_file.write(json.dumps(chunk_result.__dict__, ensure_ascii=False))
 
+        FINAL_CHUNK_FILE_PATH_MARKDOWN = FINAL_CHUNK_FILE_PATH + "/md/"
+        if not os.path.exists(FINAL_CHUNK_FILE_PATH_MARKDOWN):
+            os.makedirs(FINAL_CHUNK_FILE_PATH_MARKDOWN)
+
+        md_output_file = f"{fileName}_finalchunk.md"
+        markdown_content = f"# {chunk_result.title}\n\n ## {chunk_result.context}\n\n{chunk_result.chunk}"
+        async with aiofiles.open(FINAL_CHUNK_FILE_PATH_MARKDOWN + md_output_file, 'w', encoding='utf-8') as md_file:
+            await md_file.write(markdown_content)
+        
         return chunk_result
 
 async def processPDF(pdf_path:str):
@@ -83,11 +96,11 @@ async def processPDF(pdf_path:str):
   # Query rewriting is currently available in the North Europe, and Southeast Asia regions.
   # https://learn.microsoft.com/en-us/azure/search/semantic-how-to-query-rewrite
   # api-version=2024-11-01-preview
-  await uploadChunkFinalResult(chunkFinalResultList)
+  #await uploadChunkFinalResult(chunkFinalResultList)
 
 
 
 if __name__ == "__main__":
-  clear_cache_by_cache_name("suitate_context")
-  clear_cache_by_cache_name("entitle_chunk")
+  #clear_cache_by_cache_name("suitate_context")
+  #clear_cache_by_cache_name("entitle_chunk")
   reulst = asyncio.run(processPDF("/Users/huqianghui/Downloads/231220_71213901009华思雯_11~13.pdf"))
