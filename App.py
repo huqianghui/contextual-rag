@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 
@@ -27,14 +28,25 @@ load_dotenv()
 
 sem = asyncio.Semaphore(2)  # controls the number of concurrent requests
 
-async def process_file(markdownContent,mergedChunkFile):
+# set the path to save the final chunk file
+FINAL_CHUNK_FILE_PATH = os.getenv("FINAL_CHUNK_FILE_PATH","./finalChunk/")
+if not os.path.exists(FINAL_CHUNK_FILE_PATH):
+    os.makedirs(FINAL_CHUNK_FILE_PATH)
+
+async def contextual_process_file(markdownContent,mergedChunkFile):
     async with sem:
         async with aiofiles.open(mergedChunkFile, mode='r') as f:
             mergedChunkFileContent = await f.read()
         fileName = os.path.basename(mergedChunkFile)
         situateContent = await situate_context(markdownContent, mergedChunkFileContent, fileName)
         titelContent = await entitle_chunk(markdownContent, mergedChunkFileContent, fileName)
-        return ChunkFinalResult(title=titelContent, chunk=mergedChunkFileContent, context=situateContent, fileName=fileName)
+        chunk_result = ChunkFinalResult(title=titelContent, chunk=mergedChunkFileContent, context=situateContent, fileName=fileName)
+
+        output_file = f"{fileName}_finalchunk.json"
+        async with aiofiles.open(FINAL_CHUNK_FILE_PATH + output_file, 'w',encoding="utf-8") as json_file:
+            await json_file.write(json.dumps(chunk_result.__dict__, ensure_ascii=False))
+
+        return chunk_result
 
 async def processPDF(pdf_path:str):
 
@@ -50,21 +62,20 @@ async def processPDF(pdf_path:str):
   splitResult = await splitContentByMarkdownHeader(markdownContent) 
   mergedChunkList =  await mergeSpippentsIntoChunk(splitResult)
   mergedChunkFileList =await saveMergedChunkIntoFile(mergedChunkList)
-  result = await processMergdeChunkFile(mergedChunkFileList)
+  await processMergdeChunkFile(mergedChunkFileList)
 
-  # step 3) build the context for each chunk file
-  mergedChunkFileList = await get_LLM_chunk_file_list()
+  # step 3) build the context for each chunk file and save to final chunk files
+  llmProcessedChunkFileList = await get_LLM_chunk_file_list()
   chunkFinalResultList = []
   
-  # for mergedChunkFile in mergedChunkFileList:
-  #    chunkFinalResult = await process_file(markdownContent,mergedChunkFile)
+  # for processedChunkFile in llmProcessedChunkFileList:
+  #    chunkFinalResult = await contextual_process_file(markdownContent,processedChunkFile)
   #    if chunkFinalResult:
   #      chunkFinalResultList.append(chunkFinalResult)
   #    else:
-  #       logging.error(f"process_file error: {mergedChunkFile}")
+  #       logging.error(f"process_file error: {processedChunkFile}")
      
-
-  tasks = [process_file(markdownContent,mergedChunkFile) for mergedChunkFile in mergedChunkFileList]
+  tasks = [contextual_process_file(markdownContent,processedChunkFile) for processedChunkFile in llmProcessedChunkFileList]
   results = await asyncio.gather(*tasks)
   chunkFinalResultList.extend(results)
 
@@ -77,6 +88,6 @@ async def processPDF(pdf_path:str):
 
 
 if __name__ == "__main__":
-  #clear_cache_by_cache_name("suitate_context")
-  #clear_cache_by_cache_name("entitle_chunk")
-  reulst = asyncio.run(processPDF("/Users/huqianghui/Downloads/1.git_temp/contextual-rag/testPdf/oral_cancer.pdf"))
+  clear_cache_by_cache_name("suitate_context")
+  clear_cache_by_cache_name("entitle_chunk")
+  reulst = asyncio.run(processPDF("/Users/huqianghui/Downloads/231220_71213901009华思雯_11~13.pdf"))

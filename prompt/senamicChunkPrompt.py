@@ -24,6 +24,7 @@ Here is the chunk we want to situate within the whole document
 
 Please give a short succinct context to situate this chunk less then 150 words.  within the overall document for the purposes of improving search retrieval of the chunk.
 Answer only with the succinct context and nothing else.
+Output the result in chunk content language which means the chunk content is in Chinese, please answer in Chinese. 
 """
 
 CHUNK_TITLE_PROMPT = """
@@ -34,4 +35,5 @@ Here is the chunk we want to entitle within the whole document
 
 Please give a short entitle to descript and summary this chunk less then 50 words. within the overall document for the purposes of improving search retrieval of the chunk.
 Answer only with the title and nothing else.
+Output the result in chunk content language which means the chunk content is in Chinese, please answer in Chinese. 
 """

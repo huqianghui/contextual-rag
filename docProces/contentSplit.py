@@ -39,7 +39,9 @@ SPIPPETS_SIZE=int(os.getenv("SPIPPETS_SIZE","300"))
 # set the miminum size of the split content  
 CHUNK_MIN_SIZE = int(os.getenv("CHUNK_MIN_SIZE","800"))  
 # set the maximum size of the split content
-CHUNK_MAX_SIZE = int(os.getenv("CHUNK_MAX_SIZE","1200"))    
+CHUNK_MAX_SIZE = int(os.getenv("CHUNK_MAX_SIZE","1200"))
+# set the abusolute maximum size of the split content
+CHUNK_ABUSOLUTE_MAX_SIZE = int(os.getenv("CHUNK_ABUSOLUTE_MAX_SIZE","1600"))
 
 
 async def mergeSpippentsIntoChunk(splitResult: list[SplitResult]) -> list[MergedChunk]:
@@ -103,8 +105,8 @@ async def saveMergedChunkIntoFile(mergedChunkList: list[MergedChunk])->list[Merg
     return MergedChunkFileList
 
 async def processMergdeChunkFile(mergedChunkFileList:list[MergedChunkFile]):
-    chunkTasks = [process_big_chunk_file(mergedChunkFile.filePath) for mergedChunkFile in mergedChunkFileList if mergedChunkFile.totalTokens >= CHUNK_MAX_SIZE]
-    copyTasks = [process_small_chunk_file(mergedChunkFile.filePath) for mergedChunkFile in mergedChunkFileList if mergedChunkFile.totalTokens < CHUNK_MAX_SIZE]
+    chunkTasks = [process_big_chunk_file(mergedChunkFile.filePath) for mergedChunkFile in mergedChunkFileList if mergedChunkFile.totalTokens >= CHUNK_ABUSOLUTE_MAX_SIZE]
+    copyTasks = [process_small_chunk_file(mergedChunkFile.filePath) for mergedChunkFile in mergedChunkFileList if mergedChunkFile.totalTokens < CHUNK_ABUSOLUTE_MAX_SIZE]
     await asyncio.gather(*copyTasks)
     # run the tasks concurrently
     results = await asyncio.gather(*chunkTasks)
